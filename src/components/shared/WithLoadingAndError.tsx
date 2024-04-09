@@ -9,22 +9,22 @@ interface WithLoadingAndErrorProps {
 const WithLoadingAndError = (props: WithLoadingAndErrorProps) => {
   if (props.isLoading) {
     return (
-      <div>
+      <>
         loading...
-      </div>
+      </>
     )
   }
 
   if (props.error) {
     return (
-      <div>
+      <>
         {props.error.message}
-      </div>
+      </>
     )
   }
 
   return (
-    <div>{props.children}</div>
+    <>{props.children}</>
   )
 }
 

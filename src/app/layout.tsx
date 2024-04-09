@@ -3,8 +3,10 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/header/Header";
 import React from "react";
+import { ThemeProvider } from "./theme-provider";
 
 const inter = Inter({ subsets: ["latin"] });
+const switchThemeDuration = 100000
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -18,9 +20,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className}>
-        <Header />
-        {children}
+      <body className={`${inter.className} bg-slate-50 dark:bg-slate-950 ${switchThemeDuration} text-slate-900 dark:text-slate-200`} >
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <Header />
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );

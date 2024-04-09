@@ -2,36 +2,57 @@
 
 import React, { useState } from 'react'
 import HierarchyLabel from './HierarchyLabel'
+import { useEtcdNode } from '@/hooks/use-etcd-node'
 import { useContentStore } from '@/stores/content'
 
 interface HierarchyDisplayProps {
-  node: KVNode
-  showChildren: boolean
+  nodeKey: string
 }
 
 const HierarchyDisplay = (props: HierarchyDisplayProps) => {
-  const [showChildren, setShowChildren] = useState(props.showChildren)
-  const { changeContent: change } = useContentStore()
-  const keyElement = props.node.key.split("/")
-  const name = keyElement.length > 0 ? keyElement[props.node.key.split("/").length - 1] : ""
+  const [node, setNode] = useState<KVNode>({ key: props.nodeKey })
+  const [showChildren, setShowChildren] = useState(false)
+  const { getNode } = useEtcdNode()
+  const { setContent } = useContentStore()
 
-  const changeContent = () => {
-    if (props.node != undefined) {
-      change(props.node)
+  const handleToggleExpand = (isExpanded: boolean) => {
+    if (isExpanded) {
+      getNode(props.nodeKey).then(n => {
+        setNode(n)
+      })
     }
+    setShowChildren(isExpanded)
+  }
+
+  const handleActivate = () => {
+    getNode(props.nodeKey).then(newNode => {
+      setNode(newNode)
+      setShowChildren(true)
+      setContent(newNode)
+    })
+  }
+
+  const getName = () => {
+    if (!node) {
+      return ""
+    }
+    if (node.key === "") {
+      return "root"
+    }
+    const keyElements = node.key != undefined ? node.key.split("/") : []
+    return keyElements.length > 0 ? keyElements[keyElements.length - 1] : ""
   }
 
   return (
     <>
-      <HierarchyLabel name={props.node.key === "/" ? "root" : name} isExpanded={showChildren} onChange={v => setShowChildren(!v)} onActivate={() => changeContent()} />
+      <HierarchyLabel name={getName()} expand={showChildren} onToggleExpand={handleToggleExpand} onActivate={handleActivate}
+        hasChildren={node.nodes ? node.nodes.filter(n => n.dir).length > 0 : undefined} />
       {
         showChildren && (
           <ul className='ms-6'>
             {
-              props.node.nodes?.map((d, i) => (
-                <li key={`${i}-${d.value}`}>
-                  <HierarchyDisplay node={d} showChildren={false} />
-                </li>
+              node.nodes?.map((n, i) => (
+                n.dir && <li key={`${i}-${n.value}`}><HierarchyDisplay nodeKey={n.key} /></li>
               ))
             }
           </ul>

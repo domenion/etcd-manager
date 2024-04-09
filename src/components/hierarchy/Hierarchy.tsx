@@ -1,24 +1,17 @@
 'use client'
 
-import React, { useEffect } from 'react'
+import React from 'react'
 import HierarchyDisplay from './HierarchyDisplay'
 import WithLoadingAndError from '../shared/WithLoadingAndError'
 import { useEtcdNode } from '@/hooks/use-etcd-node'
 
-const loadNode = async (key: string): Promise<KVNode | undefined> => {
-  return
-}
-
 const Hierarchy = () => {
-  const { getNode, data, isLoading, error } = useEtcdNode()
-  useEffect(() => {
-    getNode("/")
-  }, [getNode])
+  const { isLoading, error } = useEtcdNode()
 
   return (
     <WithLoadingAndError isLoading={isLoading} error={error}>
-      <div className='m-2 p-2 w-80 justify-left border border-slate-500 rounded-lg'>
-        {data != undefined && <HierarchyDisplay node={data.node} showChildren={false} />}
+      <div className='m-2 p-2 justify-left border border-slate-500 rounded-lg w-full md:w-1/2 lg:w-1/3'>
+        <HierarchyDisplay nodeKey="" />
       </div>
     </WithLoadingAndError>
   )
